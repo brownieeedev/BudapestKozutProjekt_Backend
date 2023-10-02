@@ -194,7 +194,17 @@ exports.getMyNews = async (req, res) => {
 };
 
 //DELETE
-exports.deleteNews = (req, res) => {
+exports.deleteNews = async (req, res) => {
   const { id } = req.params;
-  console.log(`id inside deleteNews ${id}`);
+  const article = await News.findById(id);
+
+  if (!article) {
+    return res.status(404).json({
+      status: "unsuccess",
+      message: "Could not found article!",
+    });
+  } else {
+    await News.findByIdAndDelete(id);
+    return res.status(204);
+  }
 };
