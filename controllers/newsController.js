@@ -1,13 +1,15 @@
 const multer = require("multer");
 const sharp = require("sharp");
+const News = require("../models/newsModel");
+const User = require("../models/userModel");
+const admin = require("firebase-admin");
 
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 5 * 1024 * 1024 }, //5mb limit
+  limits: { fileSize: 10 * 1024 * 1024 }, //10mb limit
 });
 
 exports.uploadCover = (req, res, next) => {
-  console.log("uploading Cover");
   upload.single("coverImg")(req, res, (err) => {
     if (err) {
       return next(err);
@@ -28,7 +30,6 @@ exports.uploadOtherImages = (req, res, next) => {
 };
 
 exports.modifyCoverPhoto = async (req, res, next) => {
-  console.log("modify cover photo");
   if (!req.file) {
     return next();
   }
@@ -50,16 +51,150 @@ exports.modifyCoverPhoto = async (req, res, next) => {
   }
 };
 
-exports.createNews = (req, res) => {
-  console.log("inside createNews");
-  const { title, articleBody } = req.body;
+exports.createNews = async (req, res) => {
+  console.log("inside createnews");
+  const { title, articleBody, category } = req.body;
+  const coverImg = req.file;
 
-  console.log(req.file);
-  // console.log(req.files);
-  console.log(req.body);
+  if (!title || !articleBody || !req.user || !coverImg) {
+    return res.status(400).json({
+      status: "unsuccess",
+      message: "Missing fields, could not create news!",
+    });
+  }
+  try {
+    const bucket = admin.storage().bucket();
+    const uploadFileToFirebase = async (photo) => {
+      try {
+        let filepath = title + "-" + "coverimg";
 
+        //save the doc to the database first
+        await News.create({
+          title,
+          articleBody,
+          user: req.user._id,
+          coverImg: filepath,
+          category,
+        });
+        //get the saved document and change filename to documentId +"filetype .jpeg"
+        const currentDoc = await News.findOne({
+          coverImg: filepath,
+        });
+        console.log(`currentDoc ${currentDoc}`);
+        const filetype = coverImg.mimetype.split("/")[1];
+        filepath = currentDoc._id + `.${filetype}`;
+        //save to doc back again to db
+        await News.findByIdAndUpdate(currentDoc._id, { coverImg: filepath });
+
+        //upload to firebase
+        const fileRef = bucket.file(filepath);
+        await fileRef.save(photo.buffer, {
+          contentType: `${coverImg.mimetype}`,
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    uploadFileToFirebase(coverImg);
+
+    return res.status(200).json({
+      status: "success",
+      message: "Successfully created news!",
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(400).json({
+      status: "unsuccess",
+      message: "Error happened while saving to the DB!",
+    });
+  }
+};
+
+//GET
+exports.getAllNews = async (req, res) => {
+  const newsList = await News.find();
+  //getting images from firebase to the news
+  const bucket = admin.storage().bucket();
+  let author;
+  const news = await Promise.all(
+    newsList.map(async (item) => {
+      if (item.coverImg) {
+        const imageURL = await bucket.file(`${item.coverImg}`).getSignedUrl({
+          version: "v4",
+          action: "read",
+          expires: Date.now() + 60 * 60 * 1000, // 1 hour
+        });
+
+        const user = await User.findById(item.user);
+        author = user.name;
+
+        const itemWithImageURL = {
+          ...item.toObject(),
+          coverImg: imageURL,
+          author: author,
+        };
+        return itemWithImageURL;
+      } else {
+        // Handle the case where the coverImg field is empty or not provided, but should not happen this scenario because mongoose Models
+        return item.toObject();
+      }
+    })
+  );
+  if (!newsList) {
+    return res.status(200).json({
+      message: "No news were found!",
+    });
+  }
   return res.status(200).json({
     status: "success",
-    message: "Successfully created news!",
+    news,
   });
+};
+
+exports.getMyNews = async (req, res) => {
+  const mynews = await News.find({ user: req.user._id });
+  if (mynews.length === 0 || !mynews) {
+    return res.status(400).json({
+      status: "unsuccess",
+      message: "You do not have any news!",
+    });
+  }
+  //getting images from firebase to the news
+  const bucket = admin.storage().bucket();
+  let author;
+  const news = await Promise.all(
+    mynews.map(async (item) => {
+      if (item.coverImg) {
+        const imageURL = await bucket.file(`${item.coverImg}`).getSignedUrl({
+          version: "v4",
+          action: "read",
+          expires: Date.now() + 60 * 60 * 1000, // 1 hour
+        });
+
+        const user = await User.findById(item.user);
+        author = user.name;
+
+        const itemWithImageURL = {
+          ...item.toObject(),
+          coverImg: imageURL,
+          author: author,
+        };
+        return itemWithImageURL;
+      } else {
+        // Handle the case where the coverImg field is empty or not provided, but should not happen this scenario because mongoose Models
+        return item.toObject();
+      }
+    })
+  );
+  return res.status(200).json({
+    status: "success",
+    news,
+  });
+};
+
+//DELETE
+exports.deleteNews = (req, res) => {
+  const { id } = req.params;
+  console.log(`id inside deleteNews ${id}`);
 };
