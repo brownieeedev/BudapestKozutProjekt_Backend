@@ -193,6 +193,43 @@ exports.getMyNews = async (req, res) => {
   });
 };
 
+exports.getOne = async (req, res) => {
+  const { id } = req.params;
+  let article = await News.findById(id);
+
+  if (!article) {
+    return res.status(404).json({
+      status: "unsuccess",
+      message: "Article not found!",
+    });
+  }
+  console.log(article);
+
+  //getting coverImg from firebase to the article
+  const bucket = admin.storage().bucket();
+  const imageURL = await bucket.file(`${article.coverImg}`).getSignedUrl({
+    version: "v4",
+    action: "read",
+    expires: Date.now() + 60 * 60 * 1000, // 1 hour
+  });
+
+  //getting author name aswell
+  let author;
+  const user = await User.findById(article.user);
+  author = user.name;
+
+  article = {
+    ...article.toObject(),
+    author,
+    coverImg: imageURL,
+  };
+
+  return res.status(200).json({
+    status: "success",
+    article,
+  });
+};
+
 //DELETE
 exports.deleteNews = async (req, res) => {
   const { id } = req.params;
@@ -205,6 +242,9 @@ exports.deleteNews = async (req, res) => {
     });
   } else {
     await News.findByIdAndDelete(id);
-    return res.status(204);
+    return res.status(200).json({
+      status: "success",
+      message: "Successfully deleted item!",
+    });
   }
 };
