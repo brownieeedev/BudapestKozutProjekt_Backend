@@ -19,7 +19,8 @@ exports.uploadCover = (req, res, next) => {
 };
 
 exports.uploadOtherImages = (req, res, next) => {
-  console.log("uploading other Images");
+  const { id } = req.params;
+
   upload.single("otherImages", 5)(req, res, (err) => {
     if (err) {
       // Handle any multer errors here
@@ -51,8 +52,8 @@ exports.modifyCoverPhoto = async (req, res, next) => {
   }
 };
 
+//POST
 exports.createNews = async (req, res) => {
-  console.log("inside createnews");
   const { title, articleBody, category } = req.body;
   const coverImg = req.file;
 
@@ -80,7 +81,6 @@ exports.createNews = async (req, res) => {
         const currentDoc = await News.findOne({
           coverImg: filepath,
         });
-        console.log(`currentDoc ${currentDoc}`);
         const filetype = coverImg.mimetype.split("/")[1];
         filepath = currentDoc._id + `.${filetype}`;
         //save to doc back again to db
@@ -203,7 +203,6 @@ exports.getOne = async (req, res) => {
       message: "Article not found!",
     });
   }
-  console.log(article);
 
   //getting coverImg from firebase to the article
   const bucket = admin.storage().bucket();
@@ -245,6 +244,36 @@ exports.deleteNews = async (req, res) => {
     return res.status(200).json({
       status: "success",
       message: "Successfully deleted item!",
+    });
+  }
+};
+
+//UPDATE
+exports.updateNews = async (req, res) => {
+  console.log("reached backend");
+  const { id } = req.params;
+  const title = req.body.title;
+  const { articleBody, category } = req.body;
+
+  console.log(title, articleBody, category);
+
+  if (!title || !articleBody || !category || !req.user || !id) {
+    return res.status(400).json({
+      status: "unsuccess",
+      message: "Missing fields, could not update news!",
+    });
+  }
+  try {
+    await News.findByIdAndUpdate(id, { title, articleBody, category });
+    return res.status(200).json({
+      status: "success",
+      message: "Successfully created news!",
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(400).json({
+      status: "unsuccess",
+      message: "Error happened while saving to the DB!",
     });
   }
 };

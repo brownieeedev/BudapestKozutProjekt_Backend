@@ -12,10 +12,12 @@ router.post(
   newsController.createNews
 );
 
-router.get("/getmynews", authController.protect, newsController.getMyNews);
-
 router.get("/getnews", newsController.getAllNews);
 router.get("/get/:id", newsController.getOne);
+
+//Protected routes
+router.put("/update/:id", authController.protect, newsController.updateNews);
+router.get("/getmynews", authController.protect, newsController.getMyNews);
 router.delete("/delete/:id", authController.protect, newsController.deleteNews);
 
 module.exports = router;
