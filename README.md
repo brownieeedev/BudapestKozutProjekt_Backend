@@ -15,4 +15,4 @@ Az alkalmazáshoz egy nívós frontendet is készítettem React, JavaScript, Mat
 
 5.A GOOGLE_APPLICATION_CREDENTIALS nevű környzeti változó értékét változtasd meg az elérési útra, tehát ha a root directoryban van: GOOGLE_APPLICATION_CREDENTIALS=./googleApplicationCredentials.json.
 
-6.A Google bejelentkezéshez a Google Cloud Platform használtalával hozz létre egy projektet, majd a bejelentkezési credentialst ments egy googleLogin.json nevű fájlba a root directoryba.
+6.A Google bejelentkezéshez a Google Cloud Platform használtalával hozz létre egy projektet, majd a bejelentkezési credentials-t mentsd egy googleLogin.json nevű fájlba a root directoryba.
