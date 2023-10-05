@@ -1,6 +1,7 @@
 googleLogin.json
 googleApplicationCredentials.json
 firebaseConfig.js
+config.env
 
 # dependencies
 /node_modules
