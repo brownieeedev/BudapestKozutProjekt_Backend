@@ -41,41 +41,6 @@ exports.googleLogin = async (req, res) => {
   }
 };
 
-exports.login = async (req, res) => {
-  const { email, jelszo } = req.body;
-
-  //1) email és jelszó létezik-e
-  if (!email || !jelszo) {
-    res.status(400).send("Please provide email and password!");
-  }
-  //2)megnézni h létezik e felhasználó és a jelszava megegyezik e
-  const user = await User.findOne({ email }).select("+jelszo");
-
-  if (!user || !(await user.correctPassword(jelszo, user.jelszo))) {
-    return res.status(401).json({ message: "Incorrect email or password" });
-  }
-
-  //3) ha minden jó token küldése a kliensnek
-  try {
-    await req.session.save();
-    req.session.userId = user.id;
-  } catch (err) {
-    console.log(err);
-  }
-  createSendToken(user, 200, res);
-};
-
-exports.logout = (req, res) => {
-  //sending empty jwt token --> cant delete this because of httpOnly attribute only emptying it
-  res.cookie("jwt", "loggedout", {
-    expires: new Date(Date.now() + 1 * 1000),
-    httpOnly: true,
-  });
-  res.status(200).json({
-    status: "success",
-  });
-};
-
 exports.protect = async (req, res, next) => {
   //1) Getting token and check if it exists
   let token;
