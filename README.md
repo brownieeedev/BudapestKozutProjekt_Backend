@@ -11,8 +11,8 @@ Az alkalmazáshoz egy nívós frontendet is készítettem React, JavaScript, Mat
 
 3.Készíts egy Firebase alkalmazást. Az alkalmazáshoz tartozik egy firebaseConfig nevű objektum a Firebase Project Settings-en belül, ezt mentsd egy firebaseConfig.js nevű fájlba a root directoryba.
 
-4. Ugyanitt a project settingsen belül a Service Accounts fülnél nyomj a generate new key gombra, majd a json-t mentsd a root directory-ba googleApplicationCredentials.json néven.
+4.Ugyanitt a project settingsen belül a Service Accounts fülnél nyomj a generate new key gombra, majd a json-t mentsd a root directory-ba googleApplicationCredentials.json néven.
 
 5.A GOOGLE_APPLICATION_CREDENTIALS nevű környzeti változó értékét változtasd meg az elérési útra, tehát ha a root directoryban van: GOOGLE_APPLICATION_CREDENTIALS=./googleApplicationCredentials.json.
 
-6. A Google bejelentkezéshez a Google Cloud Platform használtalával hozz létre egy projektet, majd a bejelentkezési credentialst ments egy googleLogin.json nevű fájlba a root directoryba.
+6.A Google bejelentkezéshez a Google Cloud Platform használtalával hozz létre egy projektet, majd a bejelentkezési credentialst ments egy googleLogin.json nevű fájlba a root directoryba.
