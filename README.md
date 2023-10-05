@@ -7,6 +7,6 @@ Az alkalmazáshoz egy nívós frontendet is készítettem React, JavaScript, Mat
 
 1.Helyezz el egy config.env nevű fájlt a backend root mappájában. A sample.env fájl mintájaként.
 2.Készíts egy MongoDB adatbázist, amelynek a connection stringjét mentsd a DATABASE nevű környezeti változóba a config.env-en belül.
-3.Készíts egy Firebase alkalmazást. Az alkalmazáshoz tartozik egy firebaseConfig nevű objektum a Firebase Project Settings-ben, ezt mentsd egy firebaseConfig.js nevű fájlba a root directoryba.
-4. Ugyanitt a project settingsen belül a Service Accounts fülnél nyomj a generate new key gombra, majd a json-t ment a root directory-ba googleApplicationCredentials.json néven.
+3.Készíts egy Firebase alkalmazást. Az alkalmazáshoz tartozik egy firebaseConfig nevű objektum a Firebase Project Settings-en belül, ezt mentsd egy firebaseConfig.js nevű fájlba a root directoryba.
+4. Ugyanitt a project settingsen belül a Service Accounts fülnél nyomj a generate new key gombra, majd a json-t mentsd a root directory-ba googleApplicationCredentials.json néven.
 5.A GOOGLE_APPLICATION_CREDENTIALS nevű környzeti változó értékét változtasd meg az elérési útra, tehát ha a root directoryban van: GOOGLE_APPLICATION_CREDENTIALS=./googleApplicationCredentials.json
