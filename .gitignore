@@ -1,5 +1,6 @@
 googleLogin.json
 googleApplicationCredentials.json
+firebaseConfig.js
 
 # dependencies
 /node_modules
